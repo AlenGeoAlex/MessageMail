@@ -26,7 +26,7 @@ if (!existsSync(fileName)) {
 
 let config = null;
 try {
-    const fileContent = readFileSync(fileName, 'utf-8');
+    const fileContent = readFileSync(fileName, 'utf-8').replaceAll("// DUMMY_CONFIG", "");
     config = JSON.parse(fileContent);
 
     console.log('Config loaded successfully');
