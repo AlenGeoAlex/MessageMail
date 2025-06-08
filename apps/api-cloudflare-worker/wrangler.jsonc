@@ -20,13 +20,11 @@
     "send_email": [
         {
             "name": "targetMailer",
-            "allowed_destination_addresses": [
-            ]
+            "allowed_destination_addresses": []
         },
         {
             "name": "sourceMailer",
-            "allowed_destination_addresses": [
-            ]
+            "allowed_destination_addresses": []
         }
     ],
     "vars": {
