@@ -12,6 +12,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
+import android.webkit.WebSettings;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
@@ -87,6 +88,7 @@ public class AppWorkers {
 
                 Request request = new Request.Builder()
                         .header("x-secret-key", secretKey)
+                        .header("User-Agent", WebSettings.getDefaultUserAgent(context))
                         .url(url)
                         .post(body)
                         .build();

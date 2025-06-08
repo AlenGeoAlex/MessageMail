@@ -15,6 +15,7 @@ import android.telephony.SubscriptionManager;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.webkit.WebSettings;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -248,6 +249,7 @@ public class MainActivity extends AppCompatActivity {
 
     @SuppressLint("SetTextI18n")
     private void validateAndSaveSettings() {
+        Context applicationContext = getApplicationContext();
         showLoading(true);
         String apiUrl = etApiUrl.getText().toString().trim();
         String secretKey = etPassword.getText().toString().trim();
@@ -274,6 +276,7 @@ public class MainActivity extends AppCompatActivity {
 
         Request request = new Request.Builder()
                 .url(url)
+                .header("User-Agent", WebSettings.getDefaultUserAgent(applicationContext))
                 .post(body)
                 .build();
 
