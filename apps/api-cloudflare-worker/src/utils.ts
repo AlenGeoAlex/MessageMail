@@ -2,7 +2,8 @@ import {createMimeMessage, MIMEMessage} from "mimetext/browser";
 
 export function constructEmail(options: {
     subject: string,
-    text: string
+    text: string,
+    html?: boolean
 }) : MIMEMessage {
     const msg = createMimeMessage();
     msg.setSender({
@@ -12,7 +13,7 @@ export function constructEmail(options: {
 
     msg.setSubject(options.subject);
     msg.addMessage({
-        contentType: 'text/plain',
+        contentType: options.html ?? false ? 'text/plain' : 'text/html',
         data: options.text
     });
 
@@ -21,4 +22,12 @@ export function constructEmail(options: {
 
 export const customLogger = (message: string, ...rest: string[]) => {
     console.log(message, ...rest)
+}
+
+export function populateTemplate(template: string, data: Record<string, string>): string {
+    let populated = template;
+    for (const [key, value] of Object.entries(data)) {
+        populated = populated.replaceAll(`{{${key}}}`, value);
+    }
+    return populated;
 }

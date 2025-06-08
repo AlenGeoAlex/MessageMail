@@ -2,9 +2,10 @@ import {Hono} from "hono";
 import {zValidator} from "@hono/zod-validator";
 import {z} from "zod";
 import {env} from "cloudflare:workers";
-import {constructEmail, customLogger} from "../utils";
+import {constructEmail, customLogger, populateTemplate} from "../utils";
 import {EmailMessage} from "cloudflare:email";
 import {NOT_FOUND_TEXT} from "../constants";
+import emailTemplate from "./templates/minimal-message.html"
 
 const app = new Hono<{ Bindings: CloudflareBindings }>();
 
@@ -28,12 +29,22 @@ app.post('/message',
     })),
     async (c) => {
         const valid = c.req.valid('json');
+
+        const templateData = {
+            subject: `New message from ${valid.from}`,
+            from: valid.from,
+            // Format the date for readability
+            date: valid.on.toUTCString(),
+            // Replace newlines with <br> for HTML
+            message: valid.message.replace(/\n/g, '<br>'),
+        };
+        const finalHtml = populateTemplate(emailTemplate, templateData);
+
+
         const message = constructEmail({
            subject:  `A new message has been received from ${valid.from}` ,
-            text: `
-                ON: ${valid.on},\n
-                CONTENT: ${valid.message}
-            `
+            text: finalHtml,
+            html: true
         });
         const emails = env.TARGET_EMAIL.trim().split(",");
         customLogger(`Emails would be send to ${emails[0]}`)
