@@ -11,29 +11,54 @@ on:
 jobs:
   build-android-app:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./apps/app-android
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
           cache: gradle
 
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+
+      - name: Decode Keystore
+        id: decode_keystore
+        run: |
+          echo "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" | base64 --decode > app/release.jks
+        # This creates the keystore file inside the 'app' module directory where Gradle expects it.
+
       - name: Grant execute permission for gradlew
-        run: chmod +x apps/mobile-app/gradlew
-        working-directory: ./apps/mobile-app
+        run: chmod +x gradlew
 
-      - name: Build with Gradle
-        run: ./gradlew build
-        working-directory: ./apps/mobile-app
+      - name: Build Signed Release APK
+        id: build_apk
+        run: |
+          # Generate a dynamic version name (e.g., 2023.10.27-123)
+          VERSION_NAME=$(date +'%Y.%m.%d')-${{ github.run_number }}
+          echo "VERSION_NAME=${VERSION_NAME}" >> $GITHUB_ENV
+          
+          ./gradlew assembleRelease \
+            -PversionCode=${{ github.run_number }} \
+            -PversionName=${VERSION_NAME} \
+            -PkeystoreFile=./release.jks \
+            -PkeystorePassword=${{ secrets.RELEASE_KEYSTORE_PASSWORD }} \
+            -PkeyAlias=${{ secrets.RELEASE_KEY_ALIAS }} \
+            -PkeyPassword=${{ secrets.RELEASE_KEY_PASSWORD }}
 
-      # Optional: You could add steps here to upload the APK/AAB as an artifact
-      - name: Upload Artifact
-        uses: actions/upload-artifact@v3
+      - name: Create GitHub Release and Upload APK
+        uses: softprops/action-gh-release@v2
         with:
-          name: app-debug.apk
-          path: apps/mobile-app/app/build/outputs/apk/debug/app-debug.apk
+          # This creates a tag and a release with the version name we generated
+          tag_name: ${{ env.VERSION_NAME }}
+          name: Release ${{ env.VERSION_NAME }}
+          generate_release_notes: true # Auto-generates a changelog from commits
+          files: |
+            apps/app-android/app/build/outputs/apk/release/app-release-unsigned.apk # Corrected path to the generated APK

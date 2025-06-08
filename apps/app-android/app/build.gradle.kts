@@ -6,14 +6,29 @@ android {
     namespace = "me.alenalex.messageforwarder"
     compileSdk = 35
 
+    val verCode: Int = (findProperty("versionCode") as String?)?.toInt() ?: 1
+    val verName: String = (findProperty("versionName") as String?) ?: "1.0"
+
     defaultConfig {
         applicationId = "me.alenalex.messageforwarder"
         minSdk = 24
         targetSdk = 35
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = verCode
+        versionName = verName
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    }
+
+    signingConfigs {
+        create("release") {
+            val ksFile = file(findProperty("keystoreFile") as String? ?: "dummy.jks")
+            if (ksFile.exists()) {
+                storeFile = ksFile
+                storePassword = findProperty("keystorePassword") as String?
+                keyAlias = findProperty("keyAlias") as String?
+                keyPassword = findProperty("keyPassword") as String?
+            }
+        }
     }
 
     buildTypes {
@@ -23,6 +38,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {
