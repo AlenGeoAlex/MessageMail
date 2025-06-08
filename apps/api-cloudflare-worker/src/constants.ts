@@ -1,1 +1,1 @@
-export const NOT_FOUND_TEXT = ""
+export const NOT_FOUND_TEXT = "404 Not Found";
