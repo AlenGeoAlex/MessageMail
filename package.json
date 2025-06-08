@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prep-deploy": "node scripts/prep-wrangler-jsonc.mjs"
   },
   "keywords": [],
   "author": "",
@@ -12,6 +13,7 @@
   "type": "commonjs",
   "dependencies": {
     "@hono/zod-validator": "^0.7.0",
-    "hono": "^4.7.11"
+    "hono": "^4.7.11",
+    "zod": "^3.25.55"
   }
 }

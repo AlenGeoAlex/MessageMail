@@ -1,0 +1,53 @@
+name: release-api.yml
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - "/apps/api-cloudflare-worker/**"
+
+jobs:
+  deploy-worker:
+    name: "Release API to cloudflare worker"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'pnpm'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Install Dependencies
+        run: pnpm install
+
+      - name: Run preDeploySetup
+        run: |
+          FILE_PATH=apps/api-cloudflare-worker \
+          TARGET_EMAIL=${{ secrets.TARGET_EMAIL }} \
+          SOURCE_EMAIL=${{ secrets.SOURCE_EMAIL }} \
+          STORE_ID=${{ secrets.STORE_ID }} \
+          node scripts/prep-wrangler-jsonc.mjs
+
+      - name: Deploy to Cloudflare
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: 'apps/api-cloudflare-worker'
+          environment: production
+          secrets: |
+            FROM_EMAIL
+            TARGET_EMAIL
+            SOURCE_EMAIL
+        env:
+          FROM_EMAIL: ${{ secrets.FROM_EMAIL }}
+          TARGET_EMAIL: ${{ secrets.TARGET_EMAIL }}
+          SOURCE_EMAIL: ${{ secrets.SOURCE_EMAIL }}
