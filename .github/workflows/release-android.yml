@@ -11,6 +11,8 @@ on:
 jobs:
   build-android-app:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     defaults:
       run:
         working-directory: ./apps/app-android
@@ -60,5 +62,4 @@ jobs:
           tag_name: ${{ env.VERSION_NAME }}
           name: Release ${{ env.VERSION_NAME }}
           generate_release_notes: true # Auto-generates a changelog from commits
-          files: |
-            apps/app-android/app/build/outputs/apk/release/app-release-unsigned.apk # Corrected path to the generated APK
+          files: apps/app-android/app/build/outputs/apk/release/app-release.apk
