@@ -7,11 +7,13 @@ import {env} from "cloudflare:workers";
 import {NOT_FOUND_TEXT} from "./constants";
 
 const app = new Hono<{ Bindings: CloudflareBindings }>();
+app.use(logger(customLogger))
 
 app.use(async (c, next) => {
     if (env.ALLOW_ALL_USER_AGENT) {
         customLogger("User agent middleware check is disabled")
-        return await next();
+        await next();
+        return;
     }
 
     const userAgent = c.req.header("User-Agent");
@@ -28,10 +30,9 @@ app.use(async (c, next) => {
         return c.text(NOT_FOUND_TEXT);
     }
 
-    return await next();
+    await next();
 })
 
-app.use(logger(customLogger))
 
 
 app.route('/', ping);
