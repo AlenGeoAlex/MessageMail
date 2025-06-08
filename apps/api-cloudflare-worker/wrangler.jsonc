@@ -1,6 +1,6 @@
 {
     "$schema": "node_modules/wrangler/config-schema.json",
-    "name": "api-cloudflare-worker",
+    "name": "message-mail",
     "main": "src/index.ts",
     "compatibility_date": "2025-06-06",
     "assets": {

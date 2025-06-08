@@ -5,7 +5,7 @@ on:
       - master
     paths:
       - 'apps/api-cloudflare-worker/**'
-      - '.github/workflows/release-api.yml' ##This file
+      - '.github/workflows/release-api.yml' ##This file, any change, need to update
 
 jobs:
   deploy-worker:
