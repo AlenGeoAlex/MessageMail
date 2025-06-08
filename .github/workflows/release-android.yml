@@ -5,8 +5,8 @@ on:
     branches:
       - master
     paths:
-      - 'apps/app-android'
-      - '.github/workflows/release-android.yml.yml' ##This file, any change, need to update
+      - 'apps/app-android/**'
+      - '.github/workflows/release-android.yml' ##This file, any change, need to update
 
 jobs:
   build-android-app:
