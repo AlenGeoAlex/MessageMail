@@ -7,6 +7,7 @@ on:
     paths:
       - 'apps/api-cloudflare-worker/**'
       - '.github/workflows/release-api.yml' ##This file, any change, need to update
+      - 'scripts/prep-wrangler-jsonc.mjs' ## Any change in the script file
 
 jobs:
   deploy-worker:
@@ -39,13 +40,19 @@ jobs:
           ROUTE_DOMAIN=${{ secrets.ROUTE_DOMAIN }} \
           node scripts/prep-wrangler-jsonc.mjs
 
+
       - name: Deploy to Cloudflare
-        run: |
-          cd apps/api-cloudflare-worker
-          npx wrangler deploy --minify
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          workingDirectory: 'apps/api-cloudflare-worker'
+          environment: production
+          secrets: |
+            FROM_EMAIL
+            TARGET_EMAIL
+            SOURCE_EMAIL
         env:
-          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           FROM_EMAIL: ${{ secrets.FROM_EMAIL }}
           TARGET_EMAIL: ${{ secrets.TARGET_EMAIL }}
           SOURCE_EMAIL: ${{ secrets.SOURCE_EMAIL }}
