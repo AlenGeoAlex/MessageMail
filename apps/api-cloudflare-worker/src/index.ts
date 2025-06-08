@@ -12,8 +12,7 @@ app.use(logger(customLogger))
 app.use(async (c, next) => {
     if (env.ALLOW_ALL_USER_AGENT) {
         customLogger("User agent middleware check is disabled")
-        await next();
-        return;
+        return await next();
     }
 
     const userAgent = c.req.header("User-Agent");
@@ -30,12 +29,12 @@ app.use(async (c, next) => {
         return c.text(NOT_FOUND_TEXT);
     }
 
-    await next();
+    return await next();
 })
 
 
 
-app.route('/', ping);
+app.route('/ping', ping);
 app.route('/notifications', message)
 
 export default app;

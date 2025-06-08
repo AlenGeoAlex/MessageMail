@@ -35,6 +35,7 @@ jobs:
           TARGET_EMAIL=${{ secrets.TARGET_EMAIL }} \
           SOURCE_EMAIL=${{ secrets.SOURCE_EMAIL }} \
           STORE_ID=${{ secrets.STORE_ID }} \
+          ROUTE_DOMAIN=${{ secrets.ROUTE_DOMAIN }} \
           node scripts/prep-wrangler-jsonc.mjs
 
       - name: Deploy to Cloudflare

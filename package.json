@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prep-deploy": "node scripts/prep-wrangler-jsonc.mjs"
+    "prep-deploy": "node scripts/prep-wrangler-jsonc.mjs",
+    "prepare": "husky"
   },
   "keywords": [],
   "author": "",
@@ -15,5 +16,8 @@
     "@hono/zod-validator": "^0.7.0",
     "hono": "^4.7.11",
     "zod": "^3.25.55"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7"
   }
 }

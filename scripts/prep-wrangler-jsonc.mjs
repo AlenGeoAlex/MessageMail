@@ -6,6 +6,13 @@ const filePath = process.env.FILE_PATH
 const targetEmail = process.env.TARGET_EMAIL;
 const sourceEmail = process.env.SOURCE_EMAIL;
 const storeId = process.env.STORE_ID;
+const routeDomain = process.env.ROUTE_DOMAIN;
+
+if(!storeId)
+    throw new Error("No store id found");
+
+if(!routeDomain)
+    throw new Error("No route domain found");
 
 if(!filePath)
     throw new Error("Failed to fetch the file path from env")
@@ -64,6 +71,12 @@ if(Array.isArray(sendEmailConfig)){
 }else{
     console.warn("send_email doesn't seems to be array", secretStoreArray)
 }
+
+config["routes"] = [{
+    pattern: routeDomain,
+    "custom_domain": true
+}];
+console.log("Updated routes")
 
 console.log("Updating jsonc")
 writeFileSync(fileName, JSON.stringify(config, null, 4), 'utf-8')

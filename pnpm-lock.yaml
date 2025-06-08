@@ -17,6 +17,10 @@ importers:
       zod:
         specifier: ^3.25.55
         version: 3.25.55
+    devDependencies:
+      husky:
+        specifier: ^9.1.7
+        version: 9.1.7
 
   apps/api-cloudflare-worker:
     dependencies:
@@ -442,6 +446,11 @@ packages:
     resolution: {integrity: sha512-rv0JMwC0KALbbmwJDEnxvQCeJh+xbS3KEWW5PC9cMJ08Ur9xgatI0HmtgYZfOdOSOeYsp5LO2cOhdI8cLEbDEQ==}
     engines: {node: '>=16.9.0'}
 
+  husky@9.1.7:
+    resolution: {integrity: sha512-5gs5ytaNjBrh5Ow3zrvdUUY+0VxIuWVL4i9irt6friV+BqdCfmV11CQTWMiBYWHbXhco+J1kHfTOUkePhCDvMA==}
+    engines: {node: '>=18'}
+    hasBin: true
+
   is-arrayish@0.3.2:
     resolution: {integrity: sha512-eVRqCvVlZbuw3GrM63ovNSNAeA1K16kaR/LRY/92w0zxQ5/1YzwblUX652i4Xs9RwAGjW9d9y6X88t8OaAJfWQ==}
 
@@ -847,6 +856,8 @@ snapshots:
   glob-to-regexp@0.4.1: {}
 
   hono@4.7.11: {}
+
+  husky@9.1.7: {}
 
   is-arrayish@0.3.2: {}
 

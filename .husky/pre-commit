@@ -1,0 +1,11 @@
+echo "🚨 Running pre-push hook..."
+
+FILE="apps/api-cloudflare-worker/wrangler.jsonc"
+DUMMY_MARKER="DUMMY_CONFIG"
+
+if git diff --cached --name-only | grep -q "$FILE"; then
+  if ! grep -q "$DUMMY_MARKER" "$FILE"; then
+    echo "❌ Real $FILE detected. Push blocked!"
+    exit 1
+  fi
+fi

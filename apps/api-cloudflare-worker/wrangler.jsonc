@@ -32,5 +32,12 @@
         "FROM_EMAIL": "",
         "TARGET_EMAIL": "",
         "SOURCE_EMAIL": ""
-    }
+    },
+    "routes": [
+        {
+            "pattern": "",
+            "custom_domain": true
+        }
+    ]
 }
+// DUMMY_CONFIG
