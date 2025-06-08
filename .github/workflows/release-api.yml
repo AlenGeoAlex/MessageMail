@@ -38,6 +38,7 @@ jobs:
           SOURCE_EMAIL=${{ secrets.SOURCE_EMAIL }} \
           STORE_ID=${{ secrets.STORE_ID }} \
           ROUTE_DOMAIN=${{ secrets.ROUTE_DOMAIN }} \
+          FROM_EMAIL=${{ secrets.FROM_EMAIL }} \
           node scripts/prep-wrangler-jsonc.mjs
 
 
@@ -47,11 +48,3 @@ jobs:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           workingDirectory: 'apps/api-cloudflare-worker'
-          secrets: |
-            FROM_EMAIL
-            TARGET_EMAIL
-            SOURCE_EMAIL
-        env:
-          FROM_EMAIL: ${{ secrets.FROM_EMAIL }}
-          TARGET_EMAIL: ${{ secrets.TARGET_EMAIL }}
-          SOURCE_EMAIL: ${{ secrets.SOURCE_EMAIL }}

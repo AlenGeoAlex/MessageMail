@@ -7,6 +7,7 @@ const targetEmail = process.env.TARGET_EMAIL;
 const sourceEmail = process.env.SOURCE_EMAIL;
 const storeId = process.env.STORE_ID;
 const routeDomain = process.env.ROUTE_DOMAIN;
+const fromEmail = process.env.FROM_EMAIL;
 
 if(!storeId)
     throw new Error("No store id found");
@@ -16,6 +17,9 @@ if(!routeDomain)
 
 if(!filePath)
     throw new Error("Failed to fetch the file path from env")
+
+if(!fromEmail)
+    throw new Error("No from email found");
 
 // come out of scripts directory, then find the file
 const fileName = join(process.cwd(), filePath, "wrangler.jsonc");
@@ -77,6 +81,14 @@ config["routes"] = [{
     "custom_domain": true
 }];
 console.log("Updated routes")
+
+config["vars"] = {
+    "TARGET_EMAIL": targetEmail,
+    "SOURCE_EMAIL": sourceEmail,
+    "ALLOW_ALL_USER_AGENT": false,
+    "FROM_EMAIL": fromEmail
+}
+console.log("Updated vars")
 
 console.log("Updating jsonc")
 writeFileSync(fileName, JSON.stringify(config, null, 4), 'utf-8')
