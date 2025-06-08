@@ -6,7 +6,6 @@
 		"cf-typegen": "wrangler types --env-interface CloudflareBindings"
 	},
 	"dependencies": {
-		"api-common": "workspace:*",
 		"hono": "^4.7.11",
 		"mimetext": "^3.0.27"
 	},

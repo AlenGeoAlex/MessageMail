@@ -14,18 +14,12 @@ importers:
       hono:
         specifier: ^4.7.11
         version: 4.7.11
-      process:
-        specifier: ^0.11.10
-        version: 0.11.10
       zod:
         specifier: ^3.25.55
         version: 3.25.55
 
   apps/api-cloudflare-worker:
     dependencies:
-      api-common:
-        specifier: workspace:*
-        version: link:../api-common
       hono:
         specifier: ^4.7.11
         version: 4.7.11
@@ -36,12 +30,6 @@ importers:
       wrangler:
         specifier: ^4.19.1
         version: 4.19.1(@cloudflare/workers-types@4.20250606.0)
-
-  apps/api-common:
-    dependencies:
-      zod:
-        specifier: ^3.25.55
-        version: 3.25.55
 
 packages:
 
@@ -497,10 +485,6 @@ packages:
   printable-characters@1.0.42:
     resolution: {integrity: sha512-dKp+C4iXWK4vVYZmYSd0KBH5F/h1HoZRsbJ82AVKRO3PEo8L4lBS/vLwhVtpwwuYcoIsVY+1JYKR268yn480uQ==}
 
-  process@0.11.10:
-    resolution: {integrity: sha512-cdGef/drWFoydD1JsMzuFf8100nZl+GT+yacc2bEced5f9Rjk4z+WtFUTBu9PhOi9j/jfmBPu0mMEY4wIdAF8A==}
-    engines: {node: '>= 0.6.0'}
-
   semver@7.7.2:
     resolution: {integrity: sha512-RF0Fw+rO5AMf9MAyaRXI4AV0Ulj5lMHqVxxdSgiVbixSCXoEmmX/jk0CuJw4+3SqroYO9VoUh+HcuJivvtJemA==}
     engines: {node: '>=10'}
@@ -910,8 +894,6 @@ snapshots:
   pathe@2.0.3: {}
 
   printable-characters@1.0.42: {}
-
-  process@0.11.10: {}
 
   semver@7.7.2: {}
 

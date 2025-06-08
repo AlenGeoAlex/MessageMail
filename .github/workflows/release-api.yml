@@ -5,6 +5,7 @@ on:
       - master
     paths:
       - 'apps/api-cloudflare-worker/**'
+      - '.github/workflows/release-api.yml' ##This file
 
 jobs:
   deploy-worker:
@@ -22,7 +23,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'pnpm'
 
       - name: Install Dependencies
@@ -37,17 +38,12 @@ jobs:
           node scripts/prep-wrangler-jsonc.mjs
 
       - name: Deploy to Cloudflare
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          workingDirectory: 'apps/api-cloudflare-worker'
-          environment: production
-          secrets: |
-            FROM_EMAIL
-            TARGET_EMAIL
-            SOURCE_EMAIL
+        run: |
+          cd apps/api-cloudflare-worker
+          npx wrangler deploy --minify
         env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           FROM_EMAIL: ${{ secrets.FROM_EMAIL }}
           TARGET_EMAIL: ${{ secrets.TARGET_EMAIL }}
           SOURCE_EMAIL: ${{ secrets.SOURCE_EMAIL }}
