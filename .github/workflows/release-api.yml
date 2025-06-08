@@ -1,5 +1,6 @@
 name: release-api.yml
 on:
+  workflow_dispatch:
   push:
     branches:
       - master
