@@ -13,10 +13,10 @@ export function constructEmail(options: {
 
     msg.setSubject(options.subject);
     msg.addMessage({
-        contentType: options.html ?? false ? 'text/plain' : 'text/html',
+        contentType: 'text/html',
         data: options.text
     });
-
+    customLogger(options.text)
     return msg;
 }
 
