@@ -11,7 +11,7 @@ const app = new Hono<{ Bindings: CloudflareBindings }>();
 app.use(async (c, next) => {
     if (env.ALLOW_ALL_USER_AGENT) {
         customLogger("User agent middleware check is disabled")
-        await next();
+        return await next();
     }
 
     const userAgent = c.req.header("User-Agent");
@@ -28,7 +28,7 @@ app.use(async (c, next) => {
         return c.text(NOT_FOUND_TEXT);
     }
 
-    await next();
+    return await next();
 })
 
 app.use(logger(customLogger))
