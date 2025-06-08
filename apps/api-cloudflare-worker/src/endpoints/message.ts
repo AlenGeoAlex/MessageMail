@@ -5,7 +5,7 @@ import {env} from "cloudflare:workers";
 import {constructEmail, customLogger, populateTemplate} from "../utils";
 import {EmailMessage} from "cloudflare:email";
 import {NOT_FOUND_TEXT} from "../constants";
-import emailTemplate from "./templates/minimal-message.html"
+import emailTemplate from "../templates/minimal-message.html"
 
 const app = new Hono<{ Bindings: CloudflareBindings }>();
 
@@ -33,9 +33,7 @@ app.post('/message',
         const templateData = {
             subject: `New message from ${valid.from}`,
             from: valid.from,
-            // Format the date for readability
             date: valid.on.toUTCString(),
-            // Replace newlines with <br> for HTML
             message: valid.message.replace(/\n/g, '<br>'),
         };
         const finalHtml = populateTemplate(emailTemplate, templateData);
