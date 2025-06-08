@@ -35,6 +35,34 @@
         tools:text="This is an error message"
         tools:visibility="visible" />
 
+    <TextView
+        android:id="@+id/tvSimInfoLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Select SIM for Forwarding (Requires Android 5.1+):"
+        android:layout_marginTop="16dp"
+        tools:ignore="HardcodedText" />
+
+    <Spinner
+        android:id="@+id/spinnerSimSelection"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Enable SMS Forwarding:"
+        android:layout_marginTop="16dp"
+        tools:ignore="HardcodedText" />
+
+    <Switch
+        android:id="@+id/switchForwardingEnabled"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        tools:ignore="UseSwitchCompatOrMaterialXml" />
+
     <!-- ProgressBar that shows while validating -->
     <ProgressBar
         android:id="@+id/progressBar"

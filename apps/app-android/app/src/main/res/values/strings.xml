@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">MessageForwarder</string>
+        <string name="notification_channel_name_sms_forwarder">SMS Forwarding Status</string>
+        <string name="notification_channel_description_sms_forwarder">Notifications about SMS
+            forwarding success or failure
+        </string>
 </resources>
