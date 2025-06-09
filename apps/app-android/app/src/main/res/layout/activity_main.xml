@@ -14,7 +14,9 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:hint="Enter the server URL"
-        android:inputType="textUri" />
+        android:importantForAutofill="no"
+        android:inputType="textUri"
+        tools:ignore="HardcodedText" />
 
     <EditText
         android:id="@+id/etPassword"
@@ -22,7 +24,9 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:hint="Secret Key"
-        android:inputType="textPassword" />
+        android:importantForAutofill="no"
+        android:inputType="textPassword"
+        tools:ignore="HardcodedText" />
 
     <!-- TextView for displaying error messages -->
     <TextView
@@ -63,7 +67,6 @@
         android:layout_marginTop="8dp"
         tools:ignore="UseSwitchCompatOrMaterialXml" />
 
-    <!-- ProgressBar that shows while validating -->
     <ProgressBar
         android:id="@+id/progressBar"
         style="?android:attr/progressBarStyle"
@@ -77,6 +80,24 @@
         android:id="@+id/btnSave"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Validate and Save" />
+        android:text="Validate and Save"
+        tools:ignore="HardcodedText" />
+
+    <Button
+        android:id="@+id/btnCheckUpdate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Check for update"
+        tools:ignore="HardcodedText" />
+
+    <TextView
+        android:id="@+id/tvVersion"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:textColor="@android:color/holo_blue_light"
+        android:visibility="gone"
+        tools:text=""
+        tools:visibility="visible" />
 
 </LinearLayout>

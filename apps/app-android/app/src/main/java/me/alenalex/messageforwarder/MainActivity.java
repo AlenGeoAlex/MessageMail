@@ -1,5 +1,7 @@
 package me.alenalex.messageforwarder;
 
+import static android.content.ContentValues.TAG;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.NotificationChannel;
@@ -7,6 +9,7 @@ import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -15,7 +18,6 @@ import android.telephony.SubscriptionManager;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.webkit.WebSettings;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -32,41 +34,38 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.squareup.moshi.JsonAdapter;
+import com.squareup.moshi.Moshi;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import me.alenalex.messageforwarder.constants.SharedPrefConstants;
+import me.alenalex.messageforwarder.dto.UpdateResponse;
+import me.alenalex.messageforwarder.services.NotificationService;
+import me.alenalex.messageforwarder.services.api.WebRequestOptions;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.HttpUrl;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 public class MainActivity extends AppCompatActivity {
     private static final int SMS_PERMISSION_CODE = 101;
     private static final int READ_PHONE_STATE_PERMISSION_CODE = 102;
-    private static final int POST_NOTIFICATIONS_PERMISSION_CODE = 103;
-
-    public static final String CHANNEL_ID = "SMS_FORWARDER_CHANNEL_ID"; // Must match channel created elsewhere
-    public static final int NOTIFICATION_ID_CONFIG_ERROR = 101; // Unique ID for config errors
-    public static final int NOTIFICATION_ID_FORWARD_SUCCESS = 102;
-    public static final int NOTIFICATION_ID_FORWARD_FAILURE = 103;
-
-
     private EditText etApiUrl, etPassword;
-    private Button btnSave;
+    private Button btnSave, checkUpdate;
     private ProgressBar progressBar;
-    private TextView tvError, tvSimInfoLabel;
+    private TextView tvError, tvSimInfoLabel, tvVersion;
     private Spinner spinnerSimSelection;
     @SuppressLint("UseSwitchCompatOrMaterialCode")
     private Switch switchForwardingEnabled;
-    private OkHttpClient client;
-    private List<Integer> subscriptionIdsList = new ArrayList<>();// To store subscription IDs corresponding to spinner items
+    private final AppContainer container = AppContainer.container();
+    private final List<Integer> subscriptionIdsList = new ArrayList<>();// To store subscription IDs corresponding to spinner items
+    private String versionNumber;
 
+    @SuppressLint("SetTextI18n")
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -77,19 +76,32 @@ public class MainActivity extends AppCompatActivity {
         btnSave = findViewById(R.id.btnSave);
         progressBar = findViewById(R.id.progressBar);
         tvError = findViewById(R.id.tvError);
-        spinnerSimSelection = findViewById(R.id.spinnerSimSelection); // Add to your layout
-        tvSimInfoLabel = findViewById(R.id.tvSimInfoLabel); // Add to your layout
-        switchForwardingEnabled = findViewById(R.id.switchForwardingEnabled); // Add to your layout
+        spinnerSimSelection = findViewById(R.id.spinnerSimSelection);
+        tvSimInfoLabel = findViewById(R.id.tvSimInfoLabel);
+        switchForwardingEnabled = findViewById(R.id.switchForwardingEnabled);
+        tvVersion = findViewById(R.id.tvVersion);
+        checkUpdate = findViewById(R.id.btnCheckUpdate);
 
+        spinnerSimSelection.setVisibility(View.VISIBLE);
+        tvSimInfoLabel.setVisibility(View.VISIBLE);
+        try {
+            PackageInfo packageInfo = getApplicationContext().getPackageManager().getPackageInfo(getPackageName(), 0);
+            versionNumber = packageInfo.versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.e(TAG, "Error getting package info", e);
+            versionNumber = "N/A";
+        }
 
-        this.client = new OkHttpClient();
+        tvVersion.setText(versionNumber);
+        tvVersion.setVisibility(View.VISIBLE);
         checkAndRequestBasePermissions();
-        setupSimSelectionUiVisibility();
         setupForwardingSwitch();
-
         btnSave.setOnClickListener(listener -> {
             validateAndSaveSettings();
         });
+
+        checkUpdate.setOnClickListener(l -> checkUpdate());
+
         loadSavedSettings();
         createNotificationChannels();
     }
@@ -97,9 +109,43 @@ public class MainActivity extends AppCompatActivity {
     private void loadSavedSettings() {
         SharedPreferences sharedPreferences = getSharedPreferences(SharedPrefConstants.SHARED_PREF, MODE_PRIVATE);
         etApiUrl.setText(sharedPreferences.getString(SharedPrefConstants.API_URL, ""));
-        // For security, you might not want to re-display the password,
-        // or show it as asterisks and only update it if the user types something new.
-        // etPassword.setText(sharedPreferences.getString(SharedPrefConstants.SECRET_KEY, ""));
+        etPassword.setText(sharedPreferences.getString(SharedPrefConstants.SECRET_KEY, ""));
+    }
+
+    private void checkUpdate(){
+
+        AppContainer.container().updateService().checkUpdate(new Callback() {
+            @Override
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                Toast.makeText(getApplicationContext(), "Failed to check for update", Toast.LENGTH_LONG).show();
+                return;
+            }
+
+            @Override
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                try {
+                    ResponseBody body = response.body();
+                    if(body == null)
+                        return;
+
+                    String jsonString = body.string();
+                    Moshi moshi = AppContainer.container().moshi();
+                    JsonAdapter<UpdateResponse> jsonAdapter = moshi.adapter(UpdateResponse.class);
+
+                    UpdateResponse updateResponse = jsonAdapter.fromJson(jsonString);
+                    if(updateResponse == null)
+                        return;
+
+                    if(versionNumber == null || versionNumber.equals("N/A"))
+                        return;
+
+                    if(!versionNumber.equals(updateResponse.latestVersion))
+                        Toast.makeText(getApplicationContext(), "Update Available!", Toast.LENGTH_LONG).show();
+                }catch (Exception e){
+                    Log.e(TAG, "Error parsing JSON", e);
+                }
+            }
+        });
     }
 
     private void checkAndRequestBasePermissions() {
@@ -116,49 +162,28 @@ public class MainActivity extends AppCompatActivity {
         if (!permissionsToRequest.isEmpty()) {
             ActivityCompat.requestPermissions(this, permissionsToRequest.toArray(new String[0]), SMS_PERMISSION_CODE); // Use one code, check results
         } else {
-            // All base permissions granted, proceed with SIM selection if needed
             setupSimSelection();
         }
     }
 
-    private void setupSimSelectionUiVisibility() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-            spinnerSimSelection.setVisibility(View.VISIBLE);
-            tvSimInfoLabel.setVisibility(View.VISIBLE);
-        } else {
-            spinnerSimSelection.setVisibility(View.GONE);
-            tvSimInfoLabel.setText("SIM selection requires Android 5.1+");
-            tvSimInfoLabel.setVisibility(View.VISIBLE);
-        }
-    }
-
-
     private void setupSimSelection() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_PHONE_STATE}, READ_PHONE_STATE_PERMISSION_CODE);
-            } else {
-                loadSimInformation();
-            }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_PHONE_STATE}, READ_PHONE_STATE_PERMISSION_CODE);
+        } else {
+            loadSimInformation();
         }
     }
 
 
     private void loadSimInformation() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP_MR1) {
-            return; // Should be handled by setupSimSelectionUiVisibility
-        }
-
-        SubscriptionManager subscriptionManager = (SubscriptionManager) getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
-            // This should ideally not happen if permission flow is correct
             Toast.makeText(this, "READ_PHONE_STATE permission not granted.", Toast.LENGTH_SHORT).show();
             return;
         }
-
+        SubscriptionManager subscriptionManager = (SubscriptionManager) getSystemService(Context.TELEPHONY_SUBSCRIPTION_SERVICE);
         List<SubscriptionInfo> activeSubscriptionInfoList = subscriptionManager.getActiveSubscriptionInfoList();
         List<String> simDetailsList = new ArrayList<>();
-        subscriptionIdsList.clear(); // Clear previous list
+        subscriptionIdsList.clear();
 
         if (activeSubscriptionInfoList != null && !activeSubscriptionInfoList.isEmpty()) {
             for (SubscriptionInfo subInfo : activeSubscriptionInfoList) {
@@ -239,7 +264,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void enableSmsReceiver(boolean enable) {
-        ComponentName receiver = new ComponentName(this, SmsReceiver.class); // Use your actual receiver class
+        ComponentName receiver = new ComponentName(this, SmsReceiver.class);
         PackageManager pm = getPackageManager();
         int newState = enable ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED : PackageManager.COMPONENT_ENABLED_STATE_DISABLED;
         pm.setComponentEnabledSetting(receiver, newState, PackageManager.DONT_KILL_APP);
@@ -261,30 +286,18 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        HttpUrl url = HttpUrl.parse(apiUrl+"/ping");
+        HttpUrl url = HttpUrl.parse(apiUrl);
         if(url == null){
             showLoading(false);
-            tvError.setText("API URL cannot be empty.");
+            tvError.setText("API URL cannot be invalid.");
             tvError.setVisibility(View.VISIBLE);
             return;
         }
 
-        // --- 2. Create the validation request ---
-        // Let's assume your API expects a JSON with the secret key for validation
-        String json = "";
-        RequestBody body = RequestBody.create(json, MediaType.get("plain/text; charset=utf-8"));
 
-        Request request = new Request.Builder()
-                .url(url)
-                .header("User-Agent", WebSettings.getDefaultUserAgent(applicationContext))
-                .post(body)
-                .build();
-
-        // --- 3. Execute the request asynchronously ---
-        client.newCall(request).enqueue(new Callback() {
+        container.apiService().ping(new WebRequestOptions(url +"/ping", applicationContext), new Callback() {
             @Override
             public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                // Network error or host unreachable
                 runOnUiThread(() -> {
                     showLoading(false);
                     tvError.setText("Validation failed: " + e.getMessage());
@@ -298,10 +311,14 @@ public class MainActivity extends AppCompatActivity {
                     showLoading(false);
                     if (response.isSuccessful()) {
                         Toast.makeText(MainActivity.this, "Validation Successful!", Toast.LENGTH_SHORT).show();
-                        saveApiAndSecretToPreferences(apiUrl, secretKey);                    } else {
+                        saveApiAndSecretToPreferences(apiUrl, secretKey);                    }
+                    else {
                         String message;
                         try {
-                            message = response.body().string();
+                            ResponseBody body = response.body();
+                            if(body != null)
+                                message = body.string();
+                            else message = "N/A";
                         } catch (IOException e) {
                             message = "Failed to read the body";
                         }
@@ -310,7 +327,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
             }
-        });
+        } );
     }
 
     // Helper method to manage UI state
@@ -318,13 +335,13 @@ public class MainActivity extends AppCompatActivity {
         if (isLoading) {
             progressBar.setVisibility(View.VISIBLE);
             tvError.setVisibility(View.GONE);
-            btnSave.setEnabled(false); // Disable button
-            // Hide keyboard
+            btnSave.setEnabled(false);
+
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.hideSoftInputFromWindow(btnSave.getWindowToken(), 0);
         } else {
             progressBar.setVisibility(View.GONE);
-            btnSave.setEnabled(true); // Re-enable button
+            btnSave.setEnabled(true);
         }
     }
 
@@ -337,12 +354,13 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this, "API Settings Saved!", Toast.LENGTH_LONG).show();
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         boolean allBasePermissionsGranted = true;
 
-        if (requestCode == SMS_PERMISSION_CODE) { // Check for the combined request code
+        if (requestCode == SMS_PERMISSION_CODE) {
             for (int i = 0; i < permissions.length; i++) {
                 if (Manifest.permission.RECEIVE_SMS.equals(permissions[i])) {
                     if (grantResults[i] != PackageManager.PERMISSION_GRANTED) {
@@ -359,7 +377,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
             if(allBasePermissionsGranted){
-                // Now safe to try and load SIM info
                 setupSimSelection();
             }
 
@@ -368,22 +385,19 @@ public class MainActivity extends AppCompatActivity {
                 loadSimInformation();
             } else {
                 Toast.makeText(this, "Read Phone State permission denied. Cannot list SIMs.", Toast.LENGTH_LONG).show();
-                spinnerSimSelection.setVisibility(View.GONE); // Hide SIM selection if permission denied
+                spinnerSimSelection.setVisibility(View.GONE);
                 tvSimInfoLabel.setText("SIM info requires Read Phone State permission.");
             }
         }
     }
 
     private void createNotificationChannels() {
-        // Create the NotificationChannel, but only on API 26+ because
-        // the NotificationChannel class is new and not in the support library
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            // Channel for SMS Forwarding Status
-            CharSequence nameSmsForwarder = getString(R.string.notification_channel_name_sms_forwarder); // Example: "SMS Forwarding Status"
-            String descriptionSmsForwarder = getString(R.string.notification_channel_description_sms_forwarder); // Example: "Notifications about SMS forwarding success or failure"
-            int importanceSmsForwarder = NotificationManager.IMPORTANCE_DEFAULT; // Or IMPORTANCE_HIGH for config errors
+            CharSequence nameSmsForwarder = getString(R.string.notification_channel_name_sms_forwarder);
+            String descriptionSmsForwarder = getString(R.string.notification_channel_description_sms_forwarder);
+            int importanceSmsForwarder = NotificationManager.IMPORTANCE_DEFAULT;
 
-            NotificationChannel smsForwarderChannel = new NotificationChannel(CHANNEL_ID, nameSmsForwarder, importanceSmsForwarder);
+            NotificationChannel smsForwarderChannel = new NotificationChannel(NotificationService.channelId(), nameSmsForwarder, importanceSmsForwarder);
             smsForwarderChannel.setDescription(descriptionSmsForwarder);
 
             NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);

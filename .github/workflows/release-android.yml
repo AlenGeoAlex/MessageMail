@@ -2,11 +2,13 @@ name: release-android.yml
 on:
   workflow_dispatch:
   push:
-    branches:
-      - master
-    paths:
-      - 'apps/app-android/**'
-      - '.github/workflows/release-android.yml' ##This file, any change, need to update
+    tags:
+      - 'v*'
+#    branches:
+#      - master
+#    paths:
+#      - 'apps/app-android/**'
+#      - '.github/workflows/release-android.yml' ##This file, any change, need to update
 
 jobs:
   build-android-app:
@@ -31,11 +33,14 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
 
+      - name: Extract version name from tag
+        id: extract_version
+        run: echo "VERSION_NAME=${GITHUB_REF_NAME#v}" >> $GITHUB_ENV
+
       - name: Decode Keystore
         id: decode_keystore
         run: |
           echo "${{ secrets.RELEASE_KEYSTORE_BASE64 }}" | base64 --decode > app/release.jks
-        # This creates the keystore file inside the 'app' module directory where Gradle expects it.
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
@@ -43,14 +48,10 @@ jobs:
       - name: Build Signed Release APK
         id: build_apk
         run: |
-          # Generate a dynamic version name (e.g., 2023.10.27-123)
-          VERSION_NAME=$(date +'%Y.%m.%d')-${{ github.run_number }}
-          echo "VERSION_NAME=${VERSION_NAME}" >> $GITHUB_ENV
-          
           ./gradlew assembleRelease \
             -PversionCode=${{ github.run_number }} \
-            -PversionName=${VERSION_NAME} \
-            -PkeystoreFile=./release.jks \
+            -PversionName=${{ env.VERSION_NAME }} \
+            -PkeystoreFile=./release.jks \          
             -PkeystorePassword=${{ secrets.RELEASE_KEYSTORE_PASSWORD }} \
             -PkeyAlias=${{ secrets.RELEASE_KEY_ALIAS }} \
             -PkeyPassword=${{ secrets.RELEASE_KEY_PASSWORD }}
@@ -58,8 +59,7 @@ jobs:
       - name: Create GitHub Release and Upload APK
         uses: softprops/action-gh-release@v2
         with:
-          # This creates a tag and a release with the version name we generated
-          tag_name: ${{ env.VERSION_NAME }}
+          tag_name: ${{ github.ref_name }}
           name: Release ${{ env.VERSION_NAME }}
-          generate_release_notes: true # Auto-generates a changelog from commits
+          generate_release_notes: true
           files: apps/app-android/app/build/outputs/apk/release/app-release.apk

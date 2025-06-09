@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
+    alias(libs.plugins.kotlin.android)
 }
 
 android {
@@ -48,11 +49,13 @@ android {
 }
 
 dependencies {
-
+    implementation (libs.autoupdater)
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.work.runtime)
     implementation(libs.okhttp)
+    implementation(libs.moshi)
+    implementation(libs.core.ktx)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
