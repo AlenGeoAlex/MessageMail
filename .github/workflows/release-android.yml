@@ -51,7 +51,7 @@ jobs:
           ./gradlew assembleRelease \
             -PversionCode=${{ github.run_number }} \
             -PversionName=${{ env.VERSION_NAME }} \
-            -PkeystoreFile=./release.jks \          
+            -PkeystoreFile=app/release.jks \          
             -PkeystorePassword=${{ secrets.RELEASE_KEYSTORE_PASSWORD }} \
             -PkeyAlias=${{ secrets.RELEASE_KEY_ALIAS }} \
             -PkeyPassword=${{ secrets.RELEASE_KEY_PASSWORD }}
