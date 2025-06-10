@@ -2,3 +2,4 @@
 **/node_modules/
 **/.DS_Store
 /apps/app-android/app/build/
+/apps/app-android/local.properties
