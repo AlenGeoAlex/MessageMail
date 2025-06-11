@@ -28,6 +28,7 @@
         }
     ],
     "vars": {
+        "LOG_BODY": true,
         "ALLOW_ALL_USER_AGENT": true,
         "FROM_EMAIL": "",
         "TARGET_EMAIL": "",

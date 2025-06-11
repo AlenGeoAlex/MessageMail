@@ -8,6 +8,19 @@ import {NOT_FOUND_TEXT} from "./constants";
 
 const app = new Hono<{ Bindings: CloudflareBindings }>();
 app.use(logger(customLogger))
+app.use(async (c, next) => {
+    if(!env.LOG_BODY){
+        customLogger("Body logging is disabled")
+        return await next();
+    }
+
+    if(["POST", "PUT", "PATCH", "DELETE"].includes(c.req.method as string) && c.req.header("Content-Type")?.includes("application/json")){
+        const responseBody = await c.req.json();
+        customLogger("Request body", responseBody)
+    }
+
+    return await next();
+})
 
 app.use(async (c, next) => {
     if (env.ALLOW_ALL_USER_AGENT) {
