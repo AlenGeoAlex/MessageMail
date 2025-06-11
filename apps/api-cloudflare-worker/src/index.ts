@@ -14,11 +14,8 @@ app.use(async (c, next) => {
         return await next();
     }
 
-    if(["POST", "PUT", "PATCH", "DELETE"].includes(c.req.method as string) && c.req.header("Content-Type")?.includes("application/json")){
-        const responseBody = await c.req.json();
-        customLogger("Request body", responseBody)
-    }
-
+    const textBody = await c.req.text();
+    customLogger("Request body", textBody)
     return await next();
 })
 
