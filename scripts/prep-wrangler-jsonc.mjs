@@ -82,12 +82,19 @@ config["routes"] = [{
 }];
 console.log("Updated routes")
 
-config["vars"] = {
+const overrides = {
     "TARGET_EMAIL": targetEmail,
     "SOURCE_EMAIL": sourceEmail,
     "ALLOW_ALL_USER_AGENT": false,
     "FROM_EMAIL": fromEmail
+};
+
+const configElement = config["vars"];
+
+for (const [key, value] of Object.entries(overrides)) {
+    configElement[key] = value;
 }
+
 console.log("Updated vars")
 
 console.log("Updating jsonc")
