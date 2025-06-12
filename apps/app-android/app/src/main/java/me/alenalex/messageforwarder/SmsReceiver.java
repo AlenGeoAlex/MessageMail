@@ -69,7 +69,6 @@ public class SmsReceiver extends BroadcastReceiver {
                     Log.d(TAG, "Subscription ID from intent extra ('slot'): " + messageSubId);
                 }
 
-
                 for (int i = 0; i < pdus.length; i++) {
                     String format = bundle.getString("format");
                     messages[i] = SmsMessage.createFromPdu((byte[]) pdus[i], format);
