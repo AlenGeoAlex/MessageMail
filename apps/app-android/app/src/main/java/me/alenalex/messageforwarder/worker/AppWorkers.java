@@ -75,6 +75,9 @@ public class AppWorkers {
             try {
                 String safeSender = sender != null ? sender : "Unknown";
                 String safeMessage = message != null ? message : "";
+                safeMessage = safeMessage
+                        .replace("\"", "\\\"")
+                        .replace("'", "\\'");
 
                 MessageNotificationCommand command = new MessageNotificationCommand()
                         .setFrom(safeSender)
