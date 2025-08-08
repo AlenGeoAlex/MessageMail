@@ -31,3 +31,4 @@ export function populateTemplate(template: string, data: Record<string, string>)
     }
     return populated;
 }
+
