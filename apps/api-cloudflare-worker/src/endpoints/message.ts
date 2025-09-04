@@ -43,29 +43,29 @@ app.post('/message',
 
         const response : Record<string, any> = {};
 
-        targets.forEach(targetType => {
+        for (const targetType of targets) {
             const normalizedString = targetType.trim().toLowerCase();
             if (normalizedString === 'email') {
                 const error = await sendEmail(valid);
                 if(!error){
                     response[targetType] = true;
-                    return;
+                    continue;
                 }
 
                 if(error instanceof Error)
                 {
                     response[targetType] = error.message;
-                    return;
+                    continue;
                 }
 
-                response[targetType] = JSON.stringify(e);
-                return;
+                response[targetType] = JSON.stringify(error);
+
             }else if(normalizedString === "wapp"){
 
             } else {
                 response[targetType] = 'Unknown'
             }
-        })
+        }
 
         let failed: boolean = false;
         Object.keys(response).forEach(key => {
@@ -122,7 +122,7 @@ async function sendEmail(body: {
         await env.targetMailer.send(emailMessage);
         return undefined;
     }catch (e: any) {
-        customLogger(JSON.stringify(error))
+        customLogger(JSON.stringify(e))
         return e;
     }
 }
@@ -149,7 +149,7 @@ async function sendWhatsappAlert(body: {
         return new Error("No Target numbers has been configured");
     }
 
-    if(!targetNumberArray.length >= 4){
+    if(targetNumberArray.length >= 4){
         return new Error("WABA Notification is not allowed for more than 3 no")
     }
 
@@ -169,9 +169,9 @@ async function sendWhatsappAlert(body: {
             })
         })
 
-        const waTargets : Record<string, string>;
+        const waTargets : Record<string, string> = {}
 
-        bodies.forEach(body => {
+        for (const body of bodies) {
             try {
                 customLogger(`Sending request for ${body['to']}`)
                 const response = await fetch(url, {
@@ -191,7 +191,7 @@ async function sendWhatsappAlert(body: {
                 customLogger(s)
                 waTargets[body['to']] = `Failed with error ${e}`
             }
-        })
+        }
 
         const length = Object.keys(waTargets).length;
         if (length > 0) {
@@ -204,7 +204,11 @@ async function sendWhatsappAlert(body: {
         }
 
         return;
+    }catch (e) {
+        customLogger(JSON.stringify(e))
+        return e
     }
+
 }
 
 export default app;
