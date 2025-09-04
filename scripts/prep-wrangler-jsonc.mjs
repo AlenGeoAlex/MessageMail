@@ -8,6 +8,9 @@ const sourceEmail = process.env.SOURCE_EMAIL;
 const storeId = process.env.STORE_ID;
 const routeDomain = process.env.ROUTE_DOMAIN;
 const fromEmail = process.env.FROM_EMAIL;
+const waPhId = process.env.WA_PH_ID;
+const waTargetNos = process.env.WA_TARGETS_NOS
+const waAccessToken = process.env.WA_ACCESS_TOKEN;
 
 if(!storeId)
     throw new Error("No store id found");
@@ -86,7 +89,10 @@ const overrides = {
     "TARGET_EMAIL": targetEmail,
     "SOURCE_EMAIL": sourceEmail,
     "ALLOW_ALL_USER_AGENT": false,
-    "FROM_EMAIL": fromEmail
+    "FROM_EMAIL": fromEmail,
+    "WA_PH_ID": waPhId,
+    "WA_TARGETS_NOS": waTargetNos,
+    "WA_ACCESS_TOKEN": waAccessToken
 };
 
 const configElement = config["vars"];

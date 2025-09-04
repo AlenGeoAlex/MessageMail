@@ -33,7 +33,10 @@
         "ALLOW_ALL_USER_AGENT": true,
         "FROM_EMAIL": "",
         "TARGET_EMAIL": "",
-        "SOURCE_EMAIL": ""
+        "SOURCE_EMAIL": "",
+        "WA_PH_ID": "",
+        "WA_TARGETS_NOS": "",
+        "WA_ACCESS_TOKEN": ""
     },
     "routes": [
         {
