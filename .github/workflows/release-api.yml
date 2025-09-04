@@ -39,6 +39,9 @@ jobs:
           STORE_ID=${{ secrets.STORE_ID }} \
           ROUTE_DOMAIN=${{ secrets.ROUTE_DOMAIN }} \
           FROM_EMAIL=${{ secrets.FROM_EMAIL }} \
+          WA_PH_ID=${{ secrets.WA_PH_ID }} \
+          WA_TARGETS_NOS=${{ secrets.WA_TARGETS_NOS }} \
+          WA_ACCESS_TOKEN=${{ secrets.WA_ACCESS_TOKEN }} \
           node scripts/prep-wrangler-jsonc.mjs
 
 
