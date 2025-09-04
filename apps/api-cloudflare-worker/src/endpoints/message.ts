@@ -60,8 +60,22 @@ app.post('/message',
 
                 response[targetType] = JSON.stringify(error);
 
-            }else if(normalizedString === "wapp"){
+            }
+            else if(normalizedString === "wapp"){
+                const error = await sendWhatsappAlert(valid)
 
+                if(!error){
+                    response[targetType] = true;
+                    continue;
+                }
+
+                if(error instanceof Error)
+                {
+                    response[targetType] = error.message;
+                    continue;
+                }
+
+                response[targetType] = JSON.stringify(error);
             } else {
                 response[targetType] = 'Unknown'
             }
