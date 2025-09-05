@@ -45,6 +45,7 @@ app.post('/message',
 
         for (const targetType of targets) {
             const normalizedString = targetType.trim().toLowerCase();
+            customLogger("Handling target type "+targetType)
             if (normalizedString === 'email') {
                 const error = await sendEmail(valid);
                 if(!error){
@@ -82,16 +83,24 @@ app.post('/message',
         }
 
         let failed: boolean = false;
-        Object.keys(response).forEach(key => {
+        let failedCount = 0;
+        const targetResponses = Object.keys(response);
+        targetResponses.forEach(key => {
             const status = response[key];
             if(typeof status === 'boolean' && status){
                 failed = false;
+            }else{
+                failedCount++;
             }
         })
 
+        if(targetResponses.length === failedCount){
+            failed = true;
+        }
+
         if(failed){
             let message: string = "Failed to message all active targets.\n";
-            Object.keys(response).forEach(key => {
+            targetResponses.forEach(key => {
                 message+= `Target=${key} - Reason=${response[key]}\n`
             })
             c.status(500);
@@ -187,12 +196,14 @@ async function sendWhatsappAlert(body: {
 
         for (const body of bodies) {
             try {
-                customLogger(`Sending request for ${body['to']}`)
+                const reqBody = JSON.stringify(body);
+                customLogger(`Sending request for ${reqBody}`)
                 const response = await fetch(url, {
                     method: 'POST',
-                    body: JSON.stringify(body),
+                    body: reqBody,
                     headers: {
-                        "Authorization": `Bearer ${accessToken}`
+                        "Authorization": `Bearer ${accessToken}`,
+                        "Content-Type": "application/json"
                     }
                 });
 
