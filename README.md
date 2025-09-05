@@ -4,7 +4,7 @@ A complete monorepo project featuring a native Android application that forwards
 
 [![Deploy Worker CI](https://github.com/AlenGeoAlex/MessageMail/actions/workflows/release-api.yml/badge.svg)](https://github.com/AlenGeoAlex/MessageMail/actions/workflows/release-api.yml)
 [![Build & Release Android](https://github.com/AlenGeoAlex/MessageMail/actions/workflows/release-android.yml/badge.svg)](https://github.com/AlenGeoAlex/MessageMail/actions/workflows/release-android.yml)
-
+[![Android App](https://img.shields.io/github/v/release/AlenGeoAlex/MessageMail)(https://github.com/AlenGeoAlex/MessageMail/releases)]
 ## 🚀 About The Project
 
 This project demonstrates a modern, full-stack development approach using a single repository (monorepo) to manage both a mobile application and its backend API. The core functionality is to capture events on an Android device (including SMS and WhatsApp messages) and securely forward them as nicely formatted emails with intelligent routing, all powered by the Cloudflare Edge network.
