@@ -89,7 +89,7 @@ To get a local copy up and running, follow these steps.
     WA_ACCESS_TOKEN="your-whatsapp-business-api-token"
     LOG_BODY=true
     ALLOW_ALL_USER_AGENT=true
-    ```</llm-patch>
+    ```
 
 3.  **Start the local development server:**
     ```bash
@@ -176,4 +176,4 @@ This project uses GitHub Actions for automated building and deployment.
 
 ## 📄 License
 
-Distributed under the MIT License. See `LICENSE.txt` for more information.
+Distributed under the MIT License. See `LICENSE.md` for more information.
