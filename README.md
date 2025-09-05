@@ -2,8 +2,8 @@
 
 A complete monorepo project featuring a native Android application that forwards device events (like SMS and battery status) to a serverless API running on Cloudflare Workers, which then sends formatted email notifications.
 
-[![Deploy Worker CI](https://github.com/alenalex/MessageMail/actions/workflows/deploy-worker.yml/badge.svg)](https://github.com/alenalex/MessageMail/actions/workflows/deploy-worker.yml)
-[![Build & Release Android](https://github.com/alenalex/MessageMail/actions/workflows/release-android.yml/badge.svg)](https://github.com/alenalex/MessageMail/actions/workflows/release-android.yml)
+[![Deploy Worker CI](https://github.com/AlenGeoAlex/MessageMail/actions/workflows/release-api.yml/badge.svg)](https://github.com/AlenGeoAlex/MessageMail/actions/workflows/release-api.yml)
+[![Build & Release Android](https://github.com/AlenGeoAlex/MessageMail/actions/workflows/release-android.yml/badge.svg)](https://github.com/AlenGeoAlex/MessageMail/actions/workflows/release-android.yml)
 
 ## 🚀 About The Project
 
